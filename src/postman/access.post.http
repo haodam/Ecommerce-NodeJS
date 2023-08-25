@@ -1,0 +1,13 @@
+### signup
+
+@url_dev =http://localhost:3056/v1/api/
+
+POST {{{url_dev}}/shop/signup
+
+Content-Type: application/json
+
+{
+    "name": "DAM ANH HAO",
+    "email": "damanhhao@gmail.com",
+    "password": "damanhao123"
+}

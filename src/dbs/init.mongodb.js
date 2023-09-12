@@ -1,7 +1,7 @@
 'use trict'
 
-const mongoose = require('mongoose')
-const { db: {host,name, port} } = require('../configs/config.mongodb')
+const mongoose = require('mongoose');
+const { db: { host , name , port } } = require('../configs/config.mongodb')
 const connectString = `mongodb://${port}/${name}`
 const { countConnect } = require('../helpers/check.connect')
 

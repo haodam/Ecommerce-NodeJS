@@ -1,45 +1,42 @@
 'use trict'
 
-//const mongoose = require('mongoose'); // Erase if already required
-const {model, Schema, Types} = require('mongoose')
+const {Schema, model, Types} = require("mongoose");
 
-const DOCUMENT_NAME = 'Shop'
-const COLLECTION_NAME = 'Shops'
+const DOCUMENT_NAME = 'Shop';
+const COLLECTION_NAME = 'Shops';
 
-// Declare the Schema of the Mongo model
-var shopSchema = new Schema({
-    name:{
+const shopSchema = new Schema({
+    name: {
         type: String,
         trim: true,
         maxLength: 150
     },
-    email:{
+    email: {
         type: String,
-        required: true,
-        trim: true,
+        unique: true,
+        trim: true
     },
-    password:{
+    password: {
         type: String,
-        required: true,
+        required: true
     },
-    status:{
+    status: {
         type: String,
-        enum:['active','inactive'],
-        default:'inactive',
+        enum: ['active', 'inactive'],
+        default: 'inactive'
     },
-    verify:{
+    verify: {
         type: Schema.Types.Boolean,
-        default: false,
+        default: false
     },
-
-    roles:{
+    roles: {
         type: Array,
-        default: [],
+        default: []
     }
 }, {
-    collection: COLLECTION_NAME,
     timestamps: true,
+    collection: COLLECTION_NAME
 });
 
-//Export the model
-module.exports = model(DOCUMENT_NAME, shopSchema);
+
+module.exports = model(DOCUMENT_NAME, shopSchema)

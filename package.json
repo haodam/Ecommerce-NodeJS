@@ -21,6 +21,7 @@
     "bcrypt": "^5.1.1",
     "compression": "^1.7.4",
     "crypto": "^1.0.1",
+    "discord.js": "^14.11.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "httpstatuscode": "^0.0.2",
@@ -29,6 +30,7 @@
     "lodash": "^4.17.21",
     "mongodb": "^5.7.0",
     "mongoose": "^7.4.2",
+    "redis": "^4.6.10",
     "slugify": "^1.6.6"
   },
   "description": "",

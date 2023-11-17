@@ -1,5 +1,9 @@
 const _ = require('lodash')
-const {Types} = require("mongoose")
+const {Types} = require('mongoose')
+
+const convertToObjectIdMongodb = id => {
+    new Types.ObjectId(id)
+}
 
 const getInfoData = ({fileds = [], object = {}}) => {
     return _.pick(object, fileds)
@@ -9,7 +13,7 @@ const getInfoData = ({fileds = [], object = {}}) => {
 const getSelectData = (select = []) => {
     return Object.fromEntries(select.map((el => [el, 1])))
 }
-
+// ['a', 'b'] = [a: 0, b: 0]
 const unGetSelectData = (select = []) => {
     return Object.fromEntries(select.map((el => [el, 0])))
 }
@@ -31,19 +35,35 @@ const removeAttrUndefined = (object) => {
     return object
 }
 
+
+/*
+    const a = {
+        c : {
+            d: 1
+            e: 2
+        }
+    }
+
+    update:
+    db.collection.updateOne({
+        `c.d` : 1
+        `c.e` : 2
+    })
+*/
 const updateNestedObjectParser = obj => {
+    console.log(`[1]::`, obj)
     const final = {}
     Object.keys(obj).forEach(i => {
         if (typeof obj[i] === 'object' && !Array.isArray(obj[i])) {
             const response = updateNestedObjectParser(obj[i])
-            Object.keys(obj[i]).forEach(j => {
+            Object.keys( response || {} ).forEach(j => {
                 final[`${i}.${j}`] = response[j]
             })
         } else {
             final[i] = obj[i]
         }
     })
-
+    console.log(`[2]::`, final)
     return final
 }
 
@@ -54,5 +74,6 @@ module.exports = {
     unGetSelectData,
     removeAttrUndefined,
     updateNestedObjectParser,
-    convert2ObjectId
+    convert2ObjectId,
+    convertToObjectIdMongodb
 }

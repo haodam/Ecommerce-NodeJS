@@ -8,8 +8,12 @@ const {
     unPublishProductByShop,
     searchProductsByUser,
     findAllProducts,
-    findProduct
+    findProduct,
+    updateProductById
 } = require('../models/repository/product.repo');
+const { insertInventory } = require('../models/repository/inventory.repo');
+const { model } = require('mongoose');
+const { updateNestedObjectParser } = require('../utils');
 
 
 // define Factory class to create product
@@ -34,42 +38,42 @@ class ProductFactory {
         return new productClass(payload).createProduct()
     }
 
-    static async updateProduct(type , payload){
+    static async updateProduct(type , productId , payload){
         const productClass = ProductFactory.productRegistry[type]
         if(!productClass){
             throw new BadRequestError(`Invalid Product Types ${type}`)
         }
-        return new productClass(payload).createProduct()
+        return new productClass(payload).updateProduct(productId)
     }
 
     // PUT //
     static async publishProductByShop({ product_shop, product_id}){
-        return await publishProductByShop({product_shop, product_id})
+        return await publishProductByShop({ product_shop, product_id })
     }
 
     static async unPublishProductByShop({ product_shop, product_id}){
-        return await unPublishProductByShop({product_shop, product_id})
+        return await unPublishProductByShop({ product_shop, product_id })
     }
 
     // Query
 
-    static async findAllDraftsForShop( {product_shop, limit = 50, skip = 0} ){
+    static async findAllDraftsForShop({ product_shop, limit = 50, skip = 0 }){
         const query = {product_shop, isDraft: true}
-        return await findAllDraftsForShop({query, limit, skip})
+        return await findAllDraftsForShop({ query, limit, skip })
     }
 
-    static async findAllPublishForShop( {product_shop, limit = 50, skip = 0} ){
-        const query = {product_shop, isPublished : true}
-        return await findAllPublishForShop({query, limit, skip})
+    static async findAllPublishForShop({ product_shop, limit = 50, skip = 0 }){
+        const query = { product_shop, isPublished : true }
+        return await findAllPublishForShop({ query, limit, skip })
     }
 
-    static async searchProducts ({keySearch}){
+    static async searchProducts ({ keySearch }){
         return await searchProductsByUser({keySearch})
     }
 
     static async findAllProducts ({limit = 50, sort = 'ctime', page = 1, filter = {isPublished: true}}){
         return await findAllProducts({limit, sort, page, filter,
-            select: ['product_name', 'product_price', 'product_thump']
+            select: ['product_name', 'product_price', 'product_thump', 'product_shop']
         })
     }
 
@@ -115,9 +119,21 @@ class Product {
     }
 
     // create new product
-
     async createProduct( product_id ){
-        return await product.create({...this, _id: product_id })
+        const newProduct = await product.create({... this, _id: product_id })
+        if(newProduct) {
+            await insertInventory({
+                productId: newProduct._id,
+                shopId: this.product_shop,
+                stock: this.product_quantity
+            })
+        }
+        return newProduct
+    }
+
+    // create Product
+    async updateProduct(productId, bodyUpdate){
+        return await updateProductById({ productId, bodyUpdate, model: product })
     }
 }
 
@@ -136,6 +152,25 @@ class Clothing extends Product{
         }
 
         return newProduct;
+    }
+
+    async updateProduct(productId){
+        // 1. remove attributes has null underfined
+        // 2. check update field
+        console.log(`[1]::`, this)
+        const updateNest = updateNestedObjectParser(this)
+        const objectParams = removeAttrUndefined(updateNest)
+        console.log(`[2]::`, objectParams)
+        if (objectParams.product_attributes){
+            // update child
+            await updateProductById({ 
+                productId, 
+                bodyUpdate: objectParams,
+                model: clothing })
+        }
+
+        const updateProduct = await super.updateProduct(productId, objectParams)
+        return updateProduct
     }
 }
 

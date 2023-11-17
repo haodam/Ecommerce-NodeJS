@@ -1,7 +1,7 @@
 
 const { product, electronics, clothing, furniture } = require('../../models/product.model');
 const { Types } = require('mongoose');
-const { getSelectData, unGetSelectData } = require('../../utils/')
+const { getSelectData, unGetSelectData, convertToObjectIdMongodb, convert2ObjectId } = require('../../utils/')
 
 const findAllDraftsForShop = async( { query, limit, skip } ) => {
     return await queryProduct({query, limit, skip})
@@ -24,7 +24,7 @@ const publishProductByShop = async({product_shop, product_id}) =>{
 
     foundShop.isDraft = false
     foundShop.isPublished = true
-    const { modifiedCount } = await foundShop.update(foundShop)
+    const { modifiedCount } = await foundShop.updateOne(foundShop)
 
     return modifiedCount
 }
@@ -55,7 +55,7 @@ const searchProductsByUser = async({keySearch}) => {
     .sort({score: {$meta: 'textScore'} })
     .lean()
 
-    return results;
+    return results
 }
 
 const findAllProducts = async({ limit , sort , page, filter , select }) => {
@@ -68,7 +68,7 @@ const findAllProducts = async({ limit , sort , page, filter , select }) => {
     .select(getSelectData(select))
     .lean()
 
-    return products;
+    return products
 }
 
 // Find Detail Product By ID
@@ -76,15 +76,41 @@ const findProduct = async ({ product_id, unSelect}) => {
     return await product.findById(product_id).select(unGetSelectData(unSelect))
 }
 
+const updateProductById = async({ productId, bodyUpdate, model, isNew = true}) => {
+    return await model.findByIdAndUpdate( productId, bodyUpdate, {
+        new: isNew
+    })
+}
+
 const queryProduct = async({query, limit, skip}) => {
     return await product.find(query).
         populate('product_shop', 'name email -_id')
-        .sort({updateAt: -1})
+        .sort({ updateAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean()
         .exec()
 }
+
+const getProductById = async (productId) => {
+    return await product.findOne({ _id: convert2ObjectId( productId) }).lean()
+}
+
+const checkProductByServer = async (products) => {
+    return await Promise.all(
+        products.map( async product => {
+            const foundProduct = await getProductById(product.productId)
+            if (foundProduct) {
+                return {
+                    price: foundProduct.product_price,
+                    quantity: product.quantity,
+                    productId: product.productId
+                }
+            }
+        })
+    )
+}
+
 
 module.exports = {
     findAllDraftsForShop,
@@ -93,5 +119,8 @@ module.exports = {
     unPublishProductByShop,
     searchProductsByUser,
     findAllProducts,
-    findProduct
+    findProduct,
+    updateProductById,
+    getProductById,
+    checkProductByServer
 }

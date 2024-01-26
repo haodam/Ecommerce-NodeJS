@@ -16,8 +16,7 @@ const RoleShop = {
     ADMIN: 'ADMIN'
 }
 
-class AccessService{
-
+class AccessService {
 
     /*
         check this token used

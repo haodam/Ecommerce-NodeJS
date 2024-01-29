@@ -5,12 +5,12 @@ class RedisPubSubService {
 
     constructor(){
         this.subscriber = Redis.createClient();
-        this.publish = Redis.createClient();
+        this.publisher = Redis.createClient();
 
     }
     publish(channel, message) {
         return new Promise( (resovel, reject) => {
-            this.publish(channel, message, (err, reply) => {
+            this.publisher.publish(channel, message, (err, reply) => {
                 if (err){
                     reject(err);
                 }else{
@@ -20,8 +20,8 @@ class RedisPubSubService {
         })
     }
 
-    subscriber(channel, callback) {
-        this.subscriber.subscriber(channel)
+    subscribe(channel, callback) {
+        this.subscriber.subscribe(channel)
         this.subscriber.on('message', (subscriberChannel, message) => {
             if(channel === subscriberChannel){
                 callback(channel, message)

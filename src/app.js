@@ -16,6 +16,11 @@ app.use(express.urlencoded({
 }))
 //console.log(`Process::`, process.env)
 
+// test pub.sub redis
+require('./tests/inventory.test')
+const productTest = require('./tests/product.test')
+productTest.purchaseProduct('ptoduct:001', 10)
+
 // init db
 require('./dbs/init.mongodb')
 // const { checkOverload } = require('./helpers/check.connect')

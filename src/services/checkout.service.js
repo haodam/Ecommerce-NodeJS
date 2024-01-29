@@ -146,7 +146,7 @@ class CheckOutService {
 
         // Neu insert thanh cong thi se xoa san pham co trong gio hang
         if(newOrder){
-            
+            // remove product in my cart
         }
 
         return newOrder

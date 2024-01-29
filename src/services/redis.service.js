@@ -5,8 +5,8 @@ const { promisify } = require('util')
 const redisClient = redis.createClient()
 
 
-const pexpire = promisify(redisClient.pexpire).bind(redisClient)
-const setnxAsync = promisify(redisClient.setnx).bind(redisClient)
+const pexpire = promisify(redisClient.pExpire).bind(redisClient)
+const setnxAsync = promisify(redisClient.setNX).bind(redisClient)
 
 const acquireLock = async ( productId , quantity, cartId ) => {
 
@@ -34,7 +34,7 @@ const acquireLock = async ( productId , quantity, cartId ) => {
 
 // Giai phong lock
 const releaseLock = async keyLock => {
-    const delAsyncKey = promisify(redisClient.setnx).bind(redisClient)
+    const delAsyncKey = promisify(redisClient.setNX).bind(redisClient)
     return await delAsyncKey(keyLock)
 }
 

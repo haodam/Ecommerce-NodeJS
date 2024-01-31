@@ -1,9 +1,8 @@
 
 const redis = require('redis')
-const { reservationInventory } = require('../models/repository/inventory.repo')
 const { promisify } = require('util')
 const redisClient = redis.createClient()
-
+const { reservationInventory } = require('../models/repository/inventory.repo')
 
 const pexpire = promisify(redisClient.pExpire).bind(redisClient)
 const setnxAsync = promisify(redisClient.setNX).bind(redisClient)
@@ -20,7 +19,11 @@ const acquireLock = async ( productId , quantity, cartId ) => {
         console.log(`result:::`, result)
         if(result === 1){
             // thao tac voi inventory
-            const isReversation = await reservationInventory({productId , quantity, cartId})
+            const isReversation = await reservationInventory({
+                productId,
+                quantity,
+                cartId
+            })
             if(isReversation.modifiedCount){ // Kiem tra isReversation co lon hon khong ko
                 await pexpire(key, expireTime)
                 return key
@@ -33,8 +36,8 @@ const acquireLock = async ( productId , quantity, cartId ) => {
 }
 
 // Giai phong lock
-const releaseLock = async keyLock => {
-    const delAsyncKey = promisify(redisClient.setNX).bind(redisClient)
+const releaseLock = async (keyLock) => {
+    const delAsyncKey = promisify(client.del).bind(client)
     return await delAsyncKey(keyLock)
 }
 

@@ -10,7 +10,6 @@ class InventoryController {
             metadata: await InventoryService.addStockToInventory(req.body)
         }).send(res)
     }
-
 }
 
 module.exports = new InventoryController()

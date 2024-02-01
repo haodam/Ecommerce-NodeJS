@@ -1,17 +1,17 @@
 
-const redis = require('redis')
+const redis = require('ioredis')
 const { promisify } = require('util')
 const redisClient = redis.createClient()
 const { reservationInventory } = require('../models/repository/inventory.repo')
 
-const pexpire = promisify(redisClient.pExpire).bind(redisClient)
-const setnxAsync = promisify(redisClient.setNX).bind(redisClient)
+const pexpire = promisify(redisClient.pexpire).bind(redisClient)
+const setnxAsync = promisify(redisClient.setnx).bind(redisClient)
 
 const acquireLock = async ( productId , quantity, cartId ) => {
 
     const key = `lock_v2023_${productId}`
-    const retryTimes = 10
-    const expireTime = 3000
+    const retryTimes = 10;
+    const expireTime = 3000;
 
     for (let i = 0; i < retryTimes.length; i++) {
         // Tao mot key ai nam giu key do thi dc vao thanh toan
@@ -28,7 +28,7 @@ const acquireLock = async ( productId , quantity, cartId ) => {
                 await pexpire(key, expireTime)
                 return key
             }
-            return null
+            return null;
         }else {
             await new Promise((resolve) => setTimeout(resolve, 50))
         }
@@ -36,8 +36,8 @@ const acquireLock = async ( productId , quantity, cartId ) => {
 }
 
 // Giai phong lock
-const releaseLock = async (keyLock) => {
-    const delAsyncKey = promisify(client.del).bind(client)
+const releaseLock = async keyLock => {
+    const delAsyncKey = promisify(redisClient.del).bind(client)
     return await delAsyncKey(keyLock)
 }
 

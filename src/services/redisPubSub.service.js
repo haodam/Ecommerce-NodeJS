@@ -1,5 +1,5 @@
 
-const Redis = require('redis');
+const Redis = require('ioredis');
 
 class RedisPubSubService {
 
@@ -30,4 +30,4 @@ class RedisPubSubService {
     }
 }
 
-module.exports = new RedisPubSubService();
+module.exports = new RedisPubSubService()

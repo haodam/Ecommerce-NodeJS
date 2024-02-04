@@ -16,9 +16,25 @@ class LoggerService {
         // add channel ID
         this.channelId = CHANNEL_ID_DISCORD
         this.client.on('ready', () =>{
-            console.log(`Logged is as ${this.client.user.tag}`)
+            console.log(`Logged is as ${this.client.user.tag}!`)
         })
-        this.client.login(TOKEN_DISCORD)      
+        this.client.login(TOKEN_DISCORD)    
+    }
+
+    sendToFormatCode (logData) {
+        const { code , message  = 'this is some additional infomation about the code .' , title = 'Code Example' } = logData
+
+        const codeMessage = {
+            content: message,
+            embeds: [
+                {
+                    color: parseInt('00ff00',16), // You can directly use the hexadecimal color value
+                    title: title,
+                    description: '```json\n' + JSON.stringify(code, null, 2) + '\n```',
+                },
+            ],
+        }
+       this.sendToMessage(codeMessage)
     }
 
     sendToMessage(message = 'message') {
@@ -28,9 +44,8 @@ class LoggerService {
             return
         }
 
-        channel.send(message).cache(e => console.error(e))
+        channel.send(message).catch(e => console.error(e))
     }
-
 }
 
 module.exports = new LoggerService()

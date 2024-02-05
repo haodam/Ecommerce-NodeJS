@@ -66,6 +66,44 @@ class CommentService {
         return comment
 
     }
+
+    static async getCommentsByParentId({
+        productId,
+        parentCommentId = null,
+        limit = 50,
+        offset = 0 // skip
+      }) {
+        if(parentCommentId) {
+          const parent = await Comment.findById(parentCommentId)
+          if(!parent) throw new NotFoundError('Not Found Comment for Product')
+    
+          const comments = await Comment.find({
+            comment_productId: convertToObjIdMongodb(productId),
+            comment_left : { $gt: parent.comment_left},
+            comment_right: {$lte: parent.comment_right}
+          }).select({
+            comment_left: 1,
+            comment_right: 1,
+            comment_content: 1,
+            comment_parentId: 1
+          }).sort({
+            comment_left:1
+          })
+          return comments
+        }
+        const comments = await Comment.find({
+          comment_productId: convertToObjIdMongodb(productId),
+          comment_parentId: parentCommentId
+        }).select({
+          comment_left: 1,
+          comment_right: 1,
+          comment_content: 1,
+          comment_parentId: 1
+        }).sort({
+          comment_left:1
+        })
+        return comments
+      }
 }
 
 module.exports = CommentService    

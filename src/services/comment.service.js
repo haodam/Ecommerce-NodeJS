@@ -103,7 +103,57 @@ class CommentService {
           comment_left:1
         })
         return comments
-      }
+    }
+
+    static async deleteComments({ commentId, productId }) {
+      // Kiểm tra xem sản phẩm tồn tại trong cơ sở dữ liệu hay không
+      const foundProduct = await findProduct({ product_id: productId });
+    
+      if (!foundProduct) throw new NotFoundError('Không tìm thấy sản phẩm');
+    
+      // Tìm bình luận dựa trên ID
+      const comment = await Comment.findById(commentId);
+    
+      if (!comment) throw new NotFoundError('Không tìm thấy bình luận');
+    
+      const leftValue = comment.comment_left; // Lấy giá trị bên trái từ bình luận tìm thấy
+      const rightValue = comment.comment_right; // Lấy giá trị bên phải từ bình luận tìm thấy
+    
+      // Tính khoảng cách
+      const width = rightValue - leftValue + 1;
+    
+      // Xóa tất cả bình luận với sản phẩm cụ thể và nằm trong khoảng left-right
+      await Comment.deleteMany({
+        comment_productId: convertToObjIdMongodb(productId),
+        // comment_content: { $gte: leftValue, $lte: rightValue}
+        comment_left: { $gte: leftValue },
+        comment_right: { $lte: rightValue },
+      });
+    
+      // Cập nhật giá trị bên phải cho các bình luận thuộc sản phẩm và có giá trị bên phải lớn hơn giá trị bên phải của bình luận bị xóa
+      await Comment.updateMany(
+        {
+          comment_productId: convertToObjIdMongodb(productId),
+          comment_right: { $gt: rightValue },
+        },
+        {
+          $inc: { comment_right: -width },
+        }
+      );
+    
+      // Cập nhật giá trị bên trái cho các bình luận thuộc sản phẩm và có giá trị bên trái lớn hơn giá trị bên phải của bình luận bị xóa
+      await Comment.updateMany(
+        {
+          comment_productId: convertToObjIdMongodb(productId),
+          comment_left: { $gt: rightValue },
+        },
+        {
+          $inc: { comment_left: -width },
+        }
+      );
+    
+      return true;    
+    }
 }
 
 module.exports = CommentService    

@@ -9,7 +9,9 @@ const { authenticationV2 } = require('../../auth/authUtils')
 router.use(authenticationV2)
 
 router.post('',asyncHandler(commentController.createComment))
-router.post('',asyncHandler(commentController.getCommentsByParentId))
+router.get('',asyncHandler(commentController.getCommentsByParentId))
+router.delete('',asyncHandler(commentController.deleteComment))
+
 
 
 module.exports = router

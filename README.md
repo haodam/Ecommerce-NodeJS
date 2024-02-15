@@ -15,3 +15,7 @@
    - [ ] Upload file with S3 or MinIO
    - [ ] Dockerfile, docker-compose for dev and test
    - [ ] Add discord push notify
+
+### Kafka using docker
+   - 
+

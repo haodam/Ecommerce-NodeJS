@@ -1,5 +1,7 @@
 const mysql = require('mysql2');
 
+// docker run --name mysql-10m -e MYSQL_ROOT_PASSWORD=yes -e MYSQL_DATABASE=shop123 -e MYSQL_USER=abc123 -e MYSQL_PASSWORD=secret123 -p 3306:3306 -d mysql:8.0
+
 // Tạo kết nối với cơ sở dữ liệu MySQL
 const pool = mysql.createPool({
     host: '127.0.0.1',    // Đảm bảo dùng địa chỉ IPv4
@@ -44,7 +46,7 @@ const insertBatch = async () => {
         return;
     }
 
-    const sql = `INSERT INTO test_table (id, name, age, address) VALUES ?`;
+    const sql = `INSERT INTO shop123 (id, name, age, address) VALUES ?`;
 
     // Thực hiện câu lệnh chèn
     pool.query(sql, [values], async function (err, results) {

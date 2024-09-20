@@ -5,9 +5,9 @@ const pool = mysql.createPool({
     host: '127.0.0.1',    // Đảm bảo dùng địa chỉ IPv4
     user: 'abc123',
     password: 'secret123',
-    database: 'MYSQL_10',
-    port: 8833,            // Cổng trùng khớp với cổng của MySQL container
-    connectTimeout: 10000  // Thêm thời gian chờ (10 giây) để tránh lỗi timeout
+    database: 'shop123',
+    port: 3306,        // Cổng trùng khớp với cổng của MySQL container
+    //connectTimeout: 10000  // Thêm thời gian chờ (10 giây) để tránh lỗi timeout
 });
 
 
